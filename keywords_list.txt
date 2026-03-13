@@ -1,0 +1,90 @@
+aborig*
+afrodescend*/afro-descend*
+ancestral*
+artisanal*, artesanal*
+biocultural*, bioculturel*
+city/cities, ciudad/ciudades, ville*
+civic*, civique*
+chief*, jef*/cacique*, chef*
+communau*, comunit*/comunid*
+cooperativ*
+customary, consuetudinario, coutumier
+descentrali*, décentrali*
+farmer*, agriculteur*, agricultor*
+First Nations, Primeras Nacion*, Premieres Nation*
+fisher*, pescador*, pêche*
+forester*, forestier/forestiers, guardabosque*
+FPIC, CPLI, CLIP
+'free, prior, and informed consent', 'consentimiento previo, libre, e informado', 'consentement libre, informé, et préalable'
+gatherer*, recolector*, cueilleur*
+grassroot*
+herder*, pastor*, vaquero*
+hunter*, cazador*, chasseur*
+home/homes, hogar*, maison*/domicile*
+household*, foyer*, casa/casas
+ICCA*
+indigen*, indigèn*, autochtone*, indigenous people*
+informal settlement*, asentamiento* informal/asentamiento* precario, quartier* informel/campement* informel
+ILK
+IPLC*/IP&LC*
+land rights, derechos territoriales, droits fonciers
+local*
+mother earth, madre tierra, terre nourricière
+municipal*
+nomad*, nómad*
+bucolique
+peasant*, campesino*, paysan*
+provinc*
+rural*
+self-determination, autodétermination, autodeterminacion, libre determinacion
+settlement*, asentamiento*, colonie*/ éstabillesement*
+slum/slums/slumdwellers, barrio*, bidonville*/ quartier pauvre
+smallholder*, petit proprietaire*
+SME/SMEs, PME*
+subnacion*, subnation*, infranational
+tenure*, tenencia*
+territorial
+town*, pueblo*, ville*
+tribe*, tribu
+tribal*
+urban*, urbain*
+village*, aldea*
+community.led
+dirigé par la communauté
+dirigée par la communauté
+dirigés par la communauté
+dirigées par la communauté
+liderado a nivel comunitario
+liderada a nivel comunitario
+liderados a nivel comunitario
+lideradas a nivel comunitario
+dirigido a nivel comunitario
+dirigida a nivel comunitario
+dirigidos a nivel comunitario
+dirigidas a nivel comunitario
+Indigenous.led
+dirigé par les autochtones
+dirigée par les autochtones
+dirigés par les autochtones
+dirigées par les autochthones
+liderado por indígenas/liderado por pueblos indígenas
+liderada por indígenas/liderada por pueblos indígenas
+liderados por indígenas/liderados por pueblos indígenas
+lideradas por indígenas/lideradas por pueblos indígenas
+dirigido por indígenas/dirigido por pueblos indígenas
+dirigida por indígenas/dirigida por pueblos indígenas
+dirigidos por indígenas/dirigidos por pueblos indígenas
+dirigidas por indígenas/dirigidas por pueblos indígenas
+locally.led
+dirigé localement
+dirigée localement
+dirigés localement
+dirigées localement
+liderado localmente/liderado a nivel local
+liderada localmente/liderada a nivel local
+liderados localmente/liderados a nivel local
+lideradas localmente/lideradas a nivel local
+dirigido localmente/dirigido a nivel local
+dirigida localmente/dirigida a nivel local
+dirigidos localmente/dirigidos a nivel local
+dirigidas localmente/dirigidas a nivel local

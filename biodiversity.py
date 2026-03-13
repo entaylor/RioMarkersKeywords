@@ -33,8 +33,7 @@ class BiodiversityDataset :
                  oecd_data_dtypes={'crsid':str},
                  oecd_title_colname='projecttitle',
                  oecd_desc_colname='longdescription',
-                 keyword_data_filename='Keywords-nature finance tracking_8Feb2026.xlsx',
-                 keyword_column_name='Stem word/s to search',
+                 keyword_data_filename='keywords_list.txt',
                  climate_instead=False,
                  init_only=False, debug=1 ):
 
@@ -75,7 +74,7 @@ class BiodiversityDataset :
                 filename=self.oecd_data_filename,
                 separator=oecd_data_separator,
                 infer_schema_length=oecd_infer_schema_length,
-                schema_override=oecd_data_dtypes,
+                schema_overrides=oecd_data_dtypes,
             )
         else :
             # read all tables
@@ -83,7 +82,7 @@ class BiodiversityDataset :
                 filename=oecd_data_filename,
                 separator=oecd_data_separator,
                 infer_schema_length=oecd_infer_schema_length,
-                schema_override=oecd_data_dtypes, )
+                schema_overrides=oecd_data_dtypes, )
                 for oecd_data_filename in oecd_data_filename_list ]
             # check consistent datatypes
             for col in data[0].columns :
@@ -185,30 +184,25 @@ class BiodiversityDataset :
 
         print('reading keyword data now...', end=' ', flush=True)
         starttime = time.time()
-        data = pl.read_excel(self.keyword_data_filename)
+        # data = pl.read_excel(self.keyword_data_filename)
+        with open( self.keyword_data_filename, 'r' ) as f :
+            lines = f.read().split('\n')
         print(f'done! ({time.time() - starttime:.1f} s)')
-        self.keyword_data = data
+        self.keyword_data = lines
 
         if self.debug:
-            print(f'read {len(data)} lines from oecd data file.')
-        if self.debug > 3:
-            print('column names are:')
-            for i, col in enumerate(data.columns): print(i, col)
-
-        if self.debug:
-            print( 'taking keyword definitions from column:' )
-            print( f'"{keyword_column_name}"' )
+            print(f'read {len(lines)} lines from oecd data file.')
 
         if self.debug > 9:
             print( 'removing null keywords.' )
-        data = data.filter( pl.col(keyword_column_name).is_not_null() )
+
         # if self.debug :
         #     print( 'sorting keywords alphabetically.' )
         # data = data.sort( keyword_column_name )
 
         # unpack specifications to get a list of distinct keywords
         keyword_list = []
-        for entry in data[keyword_column_name] :
+        for entry in lines :
             if entry is None : continue
 
             # decode to remove any special (non-ascii) characters
@@ -264,6 +258,8 @@ class BiodiversityDataset :
             if kw in keyword_dict.keys():
                 if keyword_dict[kw] != regex :
                     print( f'WARNING: conflicting keyword definitions: "{kw}"' )
+                    print( kw, f"{regex}" )
+                    print( kw, keyword_dict[kw] )
                     sys.exit()
                 else :
                     print( f'WARNING: duplicate keyword definition: "{kw}"' )
@@ -397,9 +393,7 @@ if __name__ == '__main__':
     oecd_data_dtypes = {'crsid': str,
                         'climateAdaptation': int,
                         'Programme Based Approaches': int}
-    keyword_data_filename = 'Keywords-nature finance tracking_8Feb2026_regex_in_purple.xlsx'
-    keyword_column_name = '3 March updates'
-
+    keyword_data_filename = 'keywords_list.txt'
     for climate_instead in [ False, True ] :
 
         # do the combined dataset in its entirety
@@ -409,7 +403,6 @@ if __name__ == '__main__':
             oecd_data_separator=oecd_data_separator,
             oecd_data_dtypes=oecd_data_dtypes,
             keyword_data_filename=keyword_data_filename,
-            keyword_column_name=keyword_column_name,
             climate_instead=climate_instead,
             debug=1, init_only=False)
 
@@ -421,7 +414,6 @@ if __name__ == '__main__':
                 oecd_data_separator=oecd_data_separator,
                 oecd_data_dtypes=oecd_data_dtypes,
                 keyword_data_filename=keyword_data_filename,
-                keyword_column_name=keyword_column_name,
                 climate_instead=climate_instead,
                 debug=1, init_only=False)
 
