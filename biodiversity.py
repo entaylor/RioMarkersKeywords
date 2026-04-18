@@ -31,16 +31,19 @@ class BiodiversityDataset :
                  oecd_data_separator=',',
                  oecd_infer_schema_length=10_000,
                  oecd_data_dtypes={'crsid':str},
-                 oecd_title_colname='projecttitle',
-                 oecd_desc_colname='longdescription',
+                 oecd_title_colname='project_title',
+                 oecd_desc_colname='long_description',
                  keyword_data_filename='keywords_list.txt',
                  climate_instead=False,
                  init_only=False, debug=1 ):
 
+        self.debug = debug
+        if self.debug > 0: print( 'debug =', self.debug )
+
         if not oecd_data_filename is None :
             print( 'will read oecd data from file:\n'+ oecd_data_filename )
             self.oecd_data_filename = oecd_data_filename
-            basename = self.oecd_data_filename.rstrip(' data.text').replace(' ', '_')
+            basename = self.oecd_data_filename.replace(' ', '_').rstrip('.parquet')
         elif not oecd_data_filename_list is None :
             print( 'will read oecd data from file list:' )
             for filename in oecd_data_filename_list :
@@ -66,15 +69,14 @@ class BiodiversityDataset :
         print( 'will read keyword data from file:\n' + keyword_data_filename )
         self.keyword_data_filename = keyword_data_filename
 
-        self.debug = debug
-        if self.debug > 0: print( 'debug =', self.debug )
+        self.read_keyword_data()
 
         if oecd_data_filename_list is None :
             self.data = self.read_oecd_data(
                 filename=self.oecd_data_filename,
-                separator=oecd_data_separator,
-                infer_schema_length=oecd_infer_schema_length,
-                schema_overrides=oecd_data_dtypes,
+                # separator=oecd_data_separator,
+                # infer_schema_length=oecd_infer_schema_length,
+                # schema_overrides=oecd_data_dtypes,
             )
         else :
             # read all tables
@@ -103,10 +105,6 @@ class BiodiversityDataset :
             print( 'init_only = TRUE' )
             return
 
-        self.read_keyword_data(
-            keyword_column_name=keyword_column_name
-        )
-
         self.prepare_oecd_data(
             oecd_title_colname=oecd_title_colname,
             oecd_desc_colname=oecd_desc_colname,
@@ -123,9 +121,14 @@ class BiodiversityDataset :
 
         print( f'reading {filename} ...', end=' ', flush=True )
         starttime = time.time()
-        data = pl.read_csv(filename, **kwargs )
-
+        if filename.endswith('.csv') :
+            data = pl.read_csv(filename, **kwargs )
+        else :
+            data = pl.read_parquet(filename, **kwargs )
         print( f'done! ({time.time() - starttime:.1f} s)' )
+
+        print( 'limiting data to 2011 onwards')
+        data = data.filter( ( 2011 <= pl.col('year') ) )
 
         if self.debug > 3:
             print( 'column names are:' )
@@ -134,13 +137,13 @@ class BiodiversityDataset :
             print( f'read {len(data)} lines from oecd data file.' )
 
         if self.climate_instead :
-            print( 'filtering on climateAdaptaton or climateMitigation >= 1...', end=' ', flush=True )
+            print( 'filtering on climate_adaptaton or climate_mitigation >= 1...', end=' ', flush=True )
             # for earliest data dtype guess for climateAdaptation is string
-            for col in 'climateMitigation climateAdaptation'.split() :
+            for col in 'climate_mitigation climate_adaptation'.split() :
                 if data[col].dtype == pl.String :
                     data = data.with_columns(pl.col(col).cast(pl.Int64))
-            data = data.filter( ( pl.col('climateMitigation') >= 1 )
-                                 | ( pl.col('climateAdaptation') >= 1 ) )
+            data = data.filter( ( pl.col('climate_mitigation') >= 1 )
+                                 | ( pl.col('climate_adaptation') >= 1 ) )
             print( 'done!' )
 
             pass
@@ -154,6 +157,21 @@ class BiodiversityDataset :
 
         # self.data = data
         return data
+
+    def compute_loading_coefficients(self):
+
+        if self.climate_instead :
+            pass
+            return
+
+        biodiversity = self.data['biodiversity']
+        coeff = np.zeros_like( biodiversity, dtype=float )
+        coeff[ biodiversity == 1 ] = 0.4
+        coeff[ biodiversity >= 2 ] = 1.0
+        coeff = pl.Series('biodiversity_coefficient', coeff)
+
+        self.data.insert_column( len(self.data.columns), coeff )
+
 
 
     def prepare_oecd_data(self,
@@ -179,7 +197,7 @@ class BiodiversityDataset :
         self.title_desc_list = title_desc
         print( f'done. ({(time.time()-starttime):.1f} s)' )
 
-    def read_keyword_data(self, keyword_column_name):
+    def read_keyword_data(self, ):
         import time
 
         print('reading keyword data now...', end=' ', flush=True)
@@ -367,8 +385,8 @@ class BiodiversityDataset :
                     len(self.data.columns), pl.Series(f'{key}_counts', counts) )
 
 
-    def write_results(self, oecd_title_colname='projecttitle',
-                 oecd_desc_colname='longdescription',
+    def write_results(self, oecd_title_colname='project_title',
+                 oecd_desc_colname='long_description',
                       ):
 
         today = self.today
@@ -388,32 +406,17 @@ class BiodiversityDataset :
 
 if __name__ == '__main__':
 
-    oecd_data_filename_list = np.sort(glob.glob('oecd_oda_data/Rio*txt'))[::-1]
-    oecd_data_separator = '|'
-    oecd_data_dtypes = {'crsid': str,
-                        'climateAdaptation': int,
-                        'Programme Based Approaches': int}
+    oecd_data_filename = 'CRS.parquet'
     keyword_data_filename = 'keywords_list.txt'
     for climate_instead in [ False, True ] :
 
         # do the combined dataset in its entirety
         data = BiodiversityDataset(
-            oecd_data_filename=None,
-            oecd_data_filename_list=oecd_data_filename_list,
-            oecd_data_separator=oecd_data_separator,
-            oecd_data_dtypes=oecd_data_dtypes,
+            oecd_data_filename=oecd_data_filename,
+            oecd_data_filename_list=None,
+            # oecd_data_separator=oecd_data_separator,
+            # oecd_data_dtypes=oecd_data_dtypes,
             keyword_data_filename=keyword_data_filename,
             climate_instead=climate_instead,
             debug=1, init_only=False)
-
-        # do each set of years one by one
-        for oecd_data_filename in oecd_data_filename_list:
-
-            data = BiodiversityDataset(
-                oecd_data_filename=oecd_data_filename,
-                oecd_data_separator=oecd_data_separator,
-                oecd_data_dtypes=oecd_data_dtypes,
-                keyword_data_filename=keyword_data_filename,
-                climate_instead=climate_instead,
-                debug=1, init_only=False)
 

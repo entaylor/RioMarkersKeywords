@@ -6,7 +6,7 @@ biocultural*, bioculturel*
 city/cities, ciudad/ciudades, ville*
 civic*, civique*
 chief*, jef*/cacique*, chef*
-communau*, comunit*/comunid*
+communit*, communau*, comunit*/comunid*
 cooperativ*
 customary, consuetudinario, coutumier
 descentrali*, décentrali*
