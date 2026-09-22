@@ -23,7 +23,7 @@ except :
     print( 'pip install xlsxwriter or use your venv manager.' )
 
 
-class BiodiversityDataset :
+class OECDDataset :
 
     def __init__(self,
                  oecd_data_filename='OECD.DCD.FSD,DSD_RIOMRKR@DF_RIOMARKERS,1.4+DAC_EC..1000..2.10...Q._T...csv',
